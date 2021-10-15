@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>Inicio</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+    <!-- inyectamos el fragmento. lo que esta despues de los dos puntos es el nombre del elemnto    -->
+       <header th:replace="layout/plantilla :: header "></header>
+    <!--olcultamos el link de agrgar y los mostramos solo para los usuarios con permiso  -->
+        <a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/agregar}">Crear Persona</a>
+
+            <table border="1">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th sec:authorize="hasRole('ROLE_ADMIN')">Editar</th>
+                    <th sec:authorize="hasRole('ROLE_ADMIN')">Eliminar</th>
+                </tr>
+                <tr th:each="persona : ${personas}">
+                    <td th:text="${persona.nombre}">Mostrar Nombre</td>
+                    <td th:text="${persona.apellido}">Mostrar apellido</td>
+                    <td th:text="${persona.email}">Mostrar Email</td>
+                    <td th:text="${persona.telefono}">Mostrar Teléfono</td>
+                    <td sec:authorize="hasRole('ROLE_ADMIN')"><a  th:href="@{/editar/} + ${persona.idpersona}" th:text="Editar"></a></td>
+                    <td sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/eliminar/} + ${persona.idpersona}" th:text="Eliminar"></a></td>
+
+
+                </tr>
+            </table>
+
+    <footer th:replace="layout/plantilla :: footer"></footer>
+
+
+    </body>
+</html>
