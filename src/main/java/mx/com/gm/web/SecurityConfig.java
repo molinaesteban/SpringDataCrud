@@ -1,10 +1,14 @@
 package mx.com.gm.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity // habilitiamos la seguridad de spring para esta clase
@@ -13,19 +17,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /*sobrescritura de metodo este metodo sirve para agregar mas usuarios y
     personalizar los usuarios*/
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // en este caso creamos usuariso en memoria
-        // autenticacion
-        auth.inMemoryAuthentication()
-                .withUser("admin")
-                   .password("{noop}123") // noop para que no se encripte el password
-                        .roles("ADMIN","USER")
-                            .and()
-                                .withUser("user")
-                                    .password("{noop}123")
-                                        .roles("USER")
-                ;
+    // implementacion jpa para cargar los usuarios
+    //inyectamos el servicio de usuario creado
+
+    private final UserDetailsService userDetailsService;
+
+    public SecurityConfig(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    // definimos es tipo de incripcion a utilizar
+    @Bean // este metodo va a estar disponible en el contenedor de Spring
+    public BCryptPasswordEncoder passwordEncoder (){
+        return new BCryptPasswordEncoder();
+    }
+
+    //Metodo par utilizar DetailsService y tambien el tipo de codificacion
+    // y pasar un argumento de forma automatica
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder builder) throws Exception {
+        builder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 
     }
 
